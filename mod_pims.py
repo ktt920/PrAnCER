@@ -5,6 +5,8 @@ Created on Wed Mar 28 20:30:27 2018
 
 Modified from PIMS source code to work on my machine. Basically, made demuzers
 and such only read video frames and not audio.
+
+8/19/2025 [KT] : Changed "if frame.index != j:" to "if getattr(frame, "index", j) != j:" due to the frame.index being depreicated in newer PyAV.
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -348,7 +350,7 @@ class PyAVReaderIndexed(FramesSequence):
         else:
             loc = j - self._toc[packet_no - 1]
         frame = self._current_packet[loc]  # av.VideoFrame
-        if frame.index != j:
+        if getattr(frame, "index", j) != j:
             raise AssertionError("Seeking failed to obtain the correct frame.")
         result = _to_nd_array(frame)
         return Frame(result, frame_no=j)
