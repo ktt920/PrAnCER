@@ -17,8 +17,12 @@ when you enter a combo state just set selected_print to be like to_Combine_print
 and turn it orange. Then clear selected print. Then you can select selected print
 as usual, and combine if need be or whatever.
 
+8/13/2025 [KT]: Changed NavigationToolbar2TKAgg to NavigationToolbar2TK due to the original command not being supported by newer matplotlib.
+
+10/13/2025 [KT] : Had an issue where the GUI extend beyond screen so only seeing a corner of the actual GUI. Resized it 800x600 when initating.
 
 """
+
 import matplotlib as mp
 mp.use('TkAgg')
 #mp.use('Qt4Agg')
@@ -46,7 +50,10 @@ else:
     import tkFileDialog
     import tkMessageBox
 from matplotlib.backends.backend_tkagg import (
-    FigureCanvasTkAgg, NavigationToolbar2TkAgg)
+    FigureCanvasTkAgg, NavigationToolbar2Tk)
+
+from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
+
 from matplotlib.figure import Figure
 import os
 
@@ -100,6 +107,8 @@ class FigureContainer():
         self.anim = animation.FuncAnimation (self.fig, self.update_func,
                                              fargs= (),  interval = 15,
                                              repeat = True)
+        manager = plt.get_current_fig_manager()
+        manager.resize(800, 600)
         plt.show()
 
     def load_new_file(self, _):
@@ -808,7 +817,7 @@ class SplitPrintWindow():
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-        self.toolbar = NavigationToolbar2TkAgg(self.canvas, self.root)
+        self.toolbar = NavigationToolbar2Tk(self.canvas, self.root)
         self.toolbar.update()
         self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         self.print_manager = print_manager
