@@ -98,7 +98,15 @@ delete_tail_detections. These are called by process_and_write in VideoAnalyzer
 than just the first one. Also it disallows two prints in the same frame having
 the same print number
 
+9/11/2025 [KT]: Was having an issue setting the Region of Interest (ROI) for the video in order to run PrAnCer (Without bound for ROI, all data will just be 0). 
+The window to mark ROI bounds extends beyond my local screen, in which I was unable to place the bottom bound.
+Solution: Set a size for the GUI.
+Replace the line cv2.namedWindow('Set ROI') with cv2.namedWindow('Set ROI', cv2.WINDOW_NORMAL)
 
+10/20/2025 [KT]: When running PrAnCER.py, the pop-up windows extend beyond the display screen of the device, resulting in the user only being able to see a corner of the display. 
+I tried to resize other windows of PrAnCER (such as video analyzes window) so they would fully appear on my screen. 
+I encountered an issue where, when there are different-sized videos being analyzed all at once, it will break the resize. 
+To solve this issue, I just forcefully set a standard size (800x600) rather than being dependent on the frame size of the video or the device screen size.
 
 warning: don't put an apostrophe in any folder you want to run through this.
 It freaks out.
@@ -113,7 +121,7 @@ if (sys.version_info > (3, 0)):
 else:
     import Tkinter as tk
     import tkFileDialog
-    import tkMessageBox 
+    import tkMessageBox
 import os.path
 import math
 import glob
@@ -360,7 +368,8 @@ class RoiChooser():
             'right clicking for bottom border, and then pressing n. To reset roi, ' +
             'press z')
         roi = None
-        cv2.namedWindow('Set ROI')
+        cv2.namedWindow('Set ROI', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('Set ROI', 800, 600)
         cv2.setMouseCallback('Set ROI', self.mouse_click)
         while True:
             cv2.imshow('Set ROI', self.curr_bg)
@@ -418,7 +427,8 @@ class Rotater():
         self.matrix = None
 
     def rotate_image(self):
-        cv2.namedWindow('Set Rotation')
+        cv2.namedWindow('Set Rotation', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('Set Rotation', 800, 600)
         cv2.setMouseCallback('Set Rotation', self.mouse_click)
         while True:
             cv2.imshow('Set Rotation', self.curr_bg)
@@ -529,7 +539,7 @@ class video_analyzer():
                  do_tail_deletion):
         self.filepath = filepath
         self.should_rotate = should_rotate
-        self.video = cv2.VideoCapture(self.filepath)
+        self.video = cv2.VideoCapture(self.filepath) 
         self.rand_name = rand_name
         self.close_dist = close_dist
         self.same_paw_dist = same_paw_dist
@@ -717,7 +727,8 @@ class video_analyzer():
 
     def analyze(self):
         start_time = time.time()
-        cv2.namedWindow(self.rand_name)
+        cv2.namedWindow(self.rand_name, cv2.WINDOW_NORMAL)
+        cv2.resizeWindow(self.rand_name, 800, 600)
         logger.info('beginning analysis on ' + os.path.split(self.filepath)[1])
         #frame 1 has already been read, so start at 1
         frame_numb = 1
@@ -744,7 +755,7 @@ class video_analyzer():
             time_for_frame = int(1000/30 - time_elapsed_ms)
             if time_for_frame <= 1:
                 time_for_frame = 2
-
+	
             if do_display:
                 cv2.imshow(self.rand_name, analyzed_frame)
                 key = cv2.waitKey(int(time_for_frame))
@@ -1077,3 +1088,4 @@ if __name__ == '__main__':
         input('Press Enter To Exit: ')
     else:
         raw_input("Press Enter To Exit: ")
+
