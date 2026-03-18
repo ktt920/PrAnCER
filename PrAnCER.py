@@ -98,15 +98,7 @@ delete_tail_detections. These are called by process_and_write in VideoAnalyzer
 than just the first one. Also it disallows two prints in the same frame having
 the same print number
 
-9/11/2025 [KT]: Was having an issue setting the Region of Interest (ROI) for the video in order to run PrAnCer (Without bound for ROI, all data will just be 0). 
-The window to mark ROI bounds extends beyond my local screen, in which I was unable to place the bottom bound.
-Solution: Set a size for the GUI.
-Replace the line cv2.namedWindow('Set ROI') with cv2.namedWindow('Set ROI', cv2.WINDOW_NORMAL)
 
-10/20/2025 [KT]: When running PrAnCER.py, the pop-up windows extend beyond the display screen of the device, resulting in the user only being able to see a corner of the display. 
-I tried to resize other windows of PrAnCER (such as video analyzes window) so they would fully appear on my screen. 
-I encountered an issue where, when there are different-sized videos being analyzed all at once, it will break the resize. 
-To solve this issue, I just forcefully set a standard size (800x600) rather than being dependent on the frame size of the video or the device screen size.
 
 warning: don't put an apostrophe in any folder you want to run through this.
 It freaks out.
@@ -655,7 +647,7 @@ class video_analyzer():
                                  offset=(self.roi[0], self.roi[1]))
 
                 #if the area is too small or too large, mark for deletion
-                to_keep = (cv2.contourArea(hull) > 200) #and
+                to_keep = (cv2.contourArea(hull) > 150) #and
                     #cv2.contourArea(hull) < 8000)
                 M = cv2.moments(hull)
 
@@ -871,6 +863,10 @@ take the y values, establish the middle of the two extremes (excluding outliers)
 and then divide up right and left based on that
 """
 def create_combo_prints(hulls_df, same_paw_dist, x_size):
+    
+    # Filter out unassigned detection
+    hulls_df.dropna(subset=['print_numb'], inplace=True) 
+    
     if len(hulls_df) < 0: #if there isn't enough data skip
         return
     
@@ -1088,4 +1084,3 @@ if __name__ == '__main__':
         input('Press Enter To Exit: ')
     else:
         raw_input("Press Enter To Exit: ")
-
