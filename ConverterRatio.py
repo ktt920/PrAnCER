@@ -18,7 +18,7 @@ import tkinter.messagebox as tkMessageBox
 # Configuration
 FRAME_WIDTH = 800
 FRAME_HEIGHT = 600
-OUTPUT_EXCEL = "calibration_results.xlsx"
+OUTPUT_CSV = "calibration_results.csv" 
 
 # Select folder dialog
 root = tk.Tk()
@@ -63,7 +63,8 @@ for video_name in video_files:
     video_path = os.path.join(video_folder, video_name)
     cap = cv2.VideoCapture(video_path)
 
-    # Get FPS from the video metadata
+    # Get native width and FPS from the video metadata
+    native_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     fps = cap.get(cv2.CAP_PROP_FPS)
 
     # Capture the first frame of the video.
@@ -141,8 +142,8 @@ for video_name in video_files:
 
     if not clicked_points:
         continue
-
-    cm_per_pixel = real_distance_cm / pixel_distance
+    scaling_factor = 800.0 / native_width
+    cm_per_pixel = (real_distance_cm / pixel_distance) * scaling_factor
 
     results.append({
         "video_name": video_name,
@@ -155,8 +156,10 @@ for video_name in video_files:
 # Save results to Excel
 df = pd.DataFrame(results)
 
-output_path = os.path.join(video_folder, OUTPUT_EXCEL)
-df.to_excel(output_path, index=False)
+output_path = os.path.join(video_folder, OUTPUT_CSV)
+df.to_csv(output_path, index=False)
 
 print("\nCalibration complete.")
 print(f"Results saved to: {output_path}")
+
+
