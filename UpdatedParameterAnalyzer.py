@@ -115,21 +115,6 @@ def get_avg_bos(prints_df, name):
     #then return bos
     return np.mean([abs(df.Y[i] - df.Y[i-1]) for i in range(1, numbPrints)])
 
-"""gets the avg stride length for a trial.
-Uses absolute distance, not just x distance.
-"""
-def get_avg_stride(prints_df, name):
-    numbPrints = hind_prints_to_analyze
-    
-    #first, delete all non back paws
-    df = prints_df[prints_df.is_hind]
-    df = df.reset_index(drop=True)
-    #first make sure everything is in order
-    [print('WARNING: for ' + name + ' paws out of order') for i in range(2, numbPrints) if df.is_right[i]!=df.is_right[i-2]]
-    #then return stride
-    xy = df.loc[:,['X','Y']].values
-    return np.mean([np.linalg.norm(xy[i,:] - xy[i-2,:]) for i in range(2, numbPrints)])
-
 def get_right_stride(prints_df, name):
     numbPrints = hind_prints_to_analyze
     
@@ -162,6 +147,12 @@ def get_left_stride(prints_df, name):
     # 3. Calculate distance between consecutive LEFT prints
     xy = df.loc[:,['X','Y']].values
     return np.mean([np.linalg.norm(xy[i,:] - xy[i-1,:]) for i in range(1, int(numbPrints/2))])
+
+"""gets the avg stride length for a trial.
+Uses absolute distance, not just x distance.
+"""
+def get_avg_stride(prints_df, name):
+    return np.mean([get_left_stride(prints_df, name), get_right_stride(prints_df, name)])
 
 """gets the avg step length for a trial.
 """
